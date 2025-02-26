@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  Memorize
-//
-//  Created by นางสาวณัฐภูพิชา อรุณกรพสุรักษ์ on 19/2/2568 BE.
-//
-
 import SwiftUI
 
 struct ContentView: View {
@@ -12,13 +5,24 @@ struct ContentView: View {
     @State var cardCount = 4
     
     var body: some View {
-        VStack {
-            ScrollView {
-                cards
+        NavigationView() {
+            VStack {
+                ScrollView {
+                    cards
+                }
+                cardCountAdjusters
             }
-            cardCountAdjusters
+            .padding()
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Memorize!")
+                    .padding(.top, 50)
+                    .font(.largeTitle)
+                    .foregroundColor(.blue)
+                    .bold()
+                }
+            }
         }
-        .padding()
     }
     
     var cards: some View {
