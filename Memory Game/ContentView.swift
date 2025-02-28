@@ -1,16 +1,51 @@
 import SwiftUI
 
 struct ContentView: View {
-    var emojis = ["🎃","💀","🕸️","😈","🎃","💀","🕸️","😈"]
-    @State var cardCount = 4
+    
+    /*enum CardThemes: String, CaseIterable, Identifiable {
+        case heart = "heart.fill"
+        case sport = "sport.fill"
+        case bakery = "bakery.fill"
+        
+        var id: String { self.rawValue }
+        
+        var cardEmojis: [String] {
+            switch self {
+            case .heart:
+                return ["💓","💕","💘","💝","💔","❤️‍🔥","❤️‍🩹","❣️","💓","💕","💘","💝","💔","❤️‍🔥","❤️‍🩹","❣️"].shuffled()
+            case .sport:
+                return ["⚽️","🏀","🏈","⚾️","🎾","🏐","🥏","🎱","⚽️","🏀","🏈","⚾️","🎾","🏐","🥏","🎱"].shuffled()
+            case .bakery:
+                return ["🥐","🥨","🥞","🧇","🍰","🧁","🍪","🥖","🥐","🥨","🥞","🧇","🍰","🧁","🍪","🥖"].shuffled()
+            }
+        }
+    }*/
+    var emojis = ["💓","💕","💘","💝","💔","❤️‍🔥","❤️‍🩹","❣️","💓","💕","💘","💝","💔","❤️‍🔥","❤️‍🩹","❣️"].shuffled()
+    //@State var selectedCardTheme: CardThemes = .heart
+    //@State var cards: [Card] = []
+    @State var flippedIndices: [Int] = []
+    @State var matchedCards: Set<Int> = []
+    
+    let cardCount = 16
     
     var body: some View {
         NavigationView() {
             VStack {
                 ScrollView {
                     cards
+                    /*Picker("", selection: $selectedCardTheme) {
+                        ForEach(CardThemes.allCases) {
+                            themes in Image(systemName: "heart.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 50, height: 50)
+                                .foregroundColor(.pink)
+                        }
+                    }
+                    .pickerStyle(SegmentedPickerStyle())*/
+
                 }
-                cardCountAdjusters
+                cardThemes
             }
             .padding()
             .toolbar {
@@ -18,7 +53,7 @@ struct ContentView: View {
                     Text("Memorize!")
                     .padding(.top, 50)
                     .font(.largeTitle)
-                    .foregroundColor(.blue)
+                    .foregroundColor(.pink)
                     .bold()
                 }
             }
@@ -26,24 +61,59 @@ struct ContentView: View {
     }
     
     var cards: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))]) {
-            ForEach(0..<cardCount, id: \.self) { index in
-                CardView(content: emojis[index])
-                    .aspectRatio(2/3, contentMode: .fit)
-            }
-        }
-        .foregroundColor(.blue)
-    }
+           LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))]) {
+               ForEach(0..<cardCount, id: \.self) { index in
+                   CardView(content: emojis[index])
+                       .aspectRatio(2/5, contentMode: .fit)
+               }
+           }
+           .foregroundColor(.pink)
+       }
     
-    var cardCountAdjusters : some View {
+    var cardThemes : some View {
         HStack {
-            cardCountAdjuster(by: -1, symbol: "rectangle.stack.fill.badge.minus")
+                
+        Spacer()
+            VStack {
+                Image(systemName: "heart.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 50, height: 50)
+                        .foregroundColor(.pink)
+                Text("Heart")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                    .padding(.bottom, 20)
+            }
             Spacer()
-            cardCountAdjuster(by: 1, symbol: "rectangle.stack.fill.badge.plus")
+            VStack {
+                Image(systemName: "soccerball")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 50, height: 50)
+                        .foregroundColor(.pink)
+                Text("Sport")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                    .padding(.bottom, 20)
+            }
+            Spacer()
+            VStack {
+                Image(systemName: "birthday.cake.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 50, height: 50)
+                        .foregroundColor(.pink)
+                Text("Bakery")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                    .padding(.bottom, 20)
+            }
+            Spacer()
         }
     }
     
-    func cardCountAdjuster(by offset: Int, symbol: String) -> some View {
+    /*func cardThemes(by offset: Int, symbol: String) -> some View {
         Button(action: {
             cardCount += offset
         }, label: {
@@ -52,8 +122,15 @@ struct ContentView: View {
                 .font(.largeTitle)
         })
         .disabled(cardCount + offset < 1 || cardCount + offset > emojis.count)
-    }
+    }*/
 }
+
+/*struct GameThemes: View {
+    var selectThemes: String
+    var body: some View {
+        
+    }
+}*/
 
 #Preview {
     ContentView()
@@ -64,7 +141,7 @@ struct CardView: View {
     var content: String
     var body: some View {
         ZStack {
-            var base = RoundedRectangle(cornerRadius: 12)
+            let base = RoundedRectangle(cornerRadius: 12)
 //            var base = Ellipse()
             Group {
                 base
@@ -80,3 +157,4 @@ struct CardView: View {
         }
     }
 }
+
