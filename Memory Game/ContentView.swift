@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     
-    /*enum CardThemes: String, CaseIterable, Identifiable {
+    enum CardThemes: String, CaseIterable, Identifiable {
         case heart = "heart.fill"
         case sport = "sport.fill"
         case bakery = "bakery.fill"
@@ -12,50 +12,39 @@ struct ContentView: View {
         var cardEmojis: [String] {
             switch self {
             case .heart:
-                return ["💓","💕","💘","💝","💔","❤️‍🔥","❤️‍🩹","❣️","💓","💕","💘","💝","💔","❤️‍🔥","❤️‍🩹","❣️"].shuffled()
+                return ["💓","💕","💘","💝","💔","❤️‍🔥","❤️‍🩹","❣️","💓","💕","💘","💝","💔","❤️‍🔥","❤️‍🩹","❣️"]
             case .sport:
-                return ["⚽️","🏀","🏈","⚾️","🎾","🏐","🥏","🎱","⚽️","🏀","🏈","⚾️","🎾","🏐","🥏","🎱"].shuffled()
+                return ["⚽️","🏀","🏈","⚾️","🎾","🏐","🥏","🎱","⚽️","🏀","🏈","⚾️","🎾","🏐","🥏","🎱"]
             case .bakery:
-                return ["🥐","🥨","🥞","🧇","🍰","🧁","🍪","🥖","🥐","🥨","🥞","🧇","🍰","🧁","🍪","🥖"].shuffled()
+                return ["🥐","🥨","🥞","🧇","🍰","🧁","🍪","🥖","🥐","🥨","🥞","🧇","🍰","🧁","🍪","🥖"]
             }
         }
-    }*/
-    var emojis = ["💓","💕","💘","💝","💔","❤️‍🔥","❤️‍🩹","❣️","💓","💕","💘","💝","💔","❤️‍🔥","❤️‍🩹","❣️"].shuffled()
-    //@State var selectedCardTheme: CardThemes = .heart
-    //@State var cards: [Card] = []
+    }
+    /*var emojis = ["💓","💕","💘","💝","💔","❤️‍🔥","❤️‍🩹","❣️","💓","💕","💘","💝","💔","❤️‍🔥","❤️‍🩹","❣️"].shuffled()*/
+    @State var selectedCardTheme: CardThemes = .heart
     @State var flippedIndices: [Int] = []
     @State var matchedCards: Set<Int> = []
+    @State var emojis: [String] = CardThemes.heart.cardEmojis
+    @State private var shuffledEmojis: [String] = []
     
     let cardCount = 16
     
     var body: some View {
         NavigationView() {
-            VStack {
-                ScrollView {
-                    cards
-                    /*Picker("", selection: $selectedCardTheme) {
-                        ForEach(CardThemes.allCases) {
-                            themes in Image(systemName: "heart.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 50, height: 50)
-                                .foregroundColor(.pink)
-                        }
-                    }
-                    .pickerStyle(SegmentedPickerStyle())*/
-
-                }
-                cardThemes
-            }
-            .padding()
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("Memorize!")
-                    .padding(.top, 50)
+            VStack(spacing: 0) {
+                Text("Memorize!")
                     .font(.largeTitle)
                     .foregroundColor(.pink)
                     .bold()
-                }
+                    .padding(.top, 40)
+                .padding(10)
+                cards
+                Spacer()
+                cardThemes
+            }
+            .padding()
+            .onAppear {
+                shuffledEmojis = selectedCardTheme.cardEmojis.shuffled()
             }
         }
     }
@@ -63,8 +52,13 @@ struct ContentView: View {
     var cards: some View {
            LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))]) {
                ForEach(0..<cardCount, id: \.self) { index in
-                   CardView(content: emojis[index])
-                       .aspectRatio(2/5, contentMode: .fit)
+                   CardView(content: selectedCardTheme.cardEmojis[index],
+                            isFaceUp: flippedIndices.contains(index) || matchedCards.contains(index)
+                            )
+                   .onTapGesture {
+                       handleTap(index: index)
+                   }
+                    .aspectRatio(4/5, contentMode: .fit)
                }
            }
            .foregroundColor(.pink)
@@ -72,7 +66,6 @@ struct ContentView: View {
     
     var cardThemes : some View {
         HStack {
-                
         Spacer()
             VStack {
                 Image(systemName: "heart.fill")
@@ -84,6 +77,9 @@ struct ContentView: View {
                     .font(.subheadline)
                     .foregroundColor(.gray)
                     .padding(.bottom, 20)
+            }
+            .onTapGesture {
+                changeTheme(to: .heart)
             }
             Spacer()
             VStack {
@@ -97,6 +93,9 @@ struct ContentView: View {
                     .foregroundColor(.gray)
                     .padding(.bottom, 20)
             }
+            .onTapGesture {
+                changeTheme(to: .sport)
+            }
             Spacer()
             VStack {
                 Image(systemName: "birthday.cake.fill")
@@ -109,52 +108,69 @@ struct ContentView: View {
                     .foregroundColor(.gray)
                     .padding(.bottom, 20)
             }
+            .onTapGesture {
+                changeTheme(to: .bakery)
+            }
             Spacer()
         }
     }
     
-    /*func cardThemes(by offset: Int, symbol: String) -> some View {
-        Button(action: {
-            cardCount += offset
-        }, label: {
-            Image(systemName: symbol)
-                .imageScale(.large)
-                .font(.largeTitle)
-        })
-        .disabled(cardCount + offset < 1 || cardCount + offset > emojis.count)
-    }*/
+    func changeTheme(to newTheme: CardThemes) {
+        selectedCardTheme = newTheme
+        shuffledEmojis = newTheme.cardEmojis.shuffled()
+        emojis = newTheme.cardEmojis
+        matchedCards.removeAll()
+        //flippedIndices.removeAll()
+    }
+    
+    func handleTap(index: Int) {
+        guard !flippedIndices.contains(index), !matchedCards.contains(index) else { return }
+
+        flippedIndices.append(index)
+        
+        if flippedIndices.count == 2 {
+            let firstIndex = flippedIndices[0]
+            let secondIndex = flippedIndices[1]
+            
+            if selectedCardTheme.cardEmojis[firstIndex] == selectedCardTheme.cardEmojis[secondIndex] {
+                matchedCards.insert(firstIndex)
+                matchedCards.insert(secondIndex)
+                /*flippedIndices.removeAll()*/
+            } else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    flippedIndices.removeAll()
+                }
+            }
+        }
+    }
 }
 
-/*struct GameThemes: View {
-    var selectThemes: String
+
+struct CardView: View {
+    var content: String
+    var isFaceUp: Bool
+
     var body: some View {
-        
+        ZStack {
+            let base = RoundedRectangle(cornerRadius: 12)
+
+            Group {
+                base.fill(Color.white)
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(lineWidth: 2))
+                Text(content)
+                    .font(.largeTitle)
+                    .opacity(isFaceUp ? 1 : 0)
+            }
+            .opacity(isFaceUp ? 1 : 0)
+
+            base.fill(Color.pink.opacity(0.7))
+                .opacity(isFaceUp ? 0 : 1)
+        }
+        .frame(width: 80, height: 120)
     }
-}*/
+}
+
 
 #Preview {
     ContentView()
 }
-
-struct CardView: View {
-    @State var isFaceUp: Bool = true
-    var content: String
-    var body: some View {
-        ZStack {
-            let base = RoundedRectangle(cornerRadius: 12)
-//            var base = Ellipse()
-            Group {
-                base
-                    .fill(.white)
-                    .strokeBorder(lineWidth: 2)
-                Text(content).font(.largeTitle)
-            }
-            .opacity(isFaceUp ? 1 : 0)
-            base.fill().opacity(isFaceUp ? 0 : 1)
-        }
-        .onTapGesture {
-            isFaceUp = !isFaceUp
-        }
-    }
-}
-
